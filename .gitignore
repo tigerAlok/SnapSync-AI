@@ -1,0 +1,27 @@
+# Flutter
+mobile/build/
+mobile/.dart_tool/
+mobile/.packages
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log

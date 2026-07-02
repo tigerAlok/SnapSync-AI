@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_theme.dart';
+import '../routes/app_router.dart';
+
 class SnapSyncApp extends StatelessWidget {
   const SnapSyncApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'SnapSync AI',
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            'SnapSync AI',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      routerConfig: appRouter,
     );
   }
 }

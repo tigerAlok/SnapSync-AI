@@ -1,4 +1,4 @@
-package com.example.mobile
+package com.tigeralok.snapsyncai
 
 import io.flutter.embedding.android.FlutterActivity
 

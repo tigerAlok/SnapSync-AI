@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "37911985738",
+    "project_id": "snapsync-ai-1ee70",
+    "storage_bucket": "snapsync-ai-1ee70.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37911985738:android:e93517ebb8b3788d5670b3",
+        "android_client_info": {
+          "package_name": "com.tigeralok.snapsyncai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbIvWdSylwTkpMoooaQle4XxqWi290TTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

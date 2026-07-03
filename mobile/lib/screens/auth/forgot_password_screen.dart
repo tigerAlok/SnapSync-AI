@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class ForgotPasswordScreen extends StatelessWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("SnapSync AI"),
+        title: const Text("Forgot Password"),
       ),
       body: const Center(
         child: Text(
-          "Home Screen",
+          "Forgot Password",
           style: TextStyle(fontSize: 24),
         ),
       ),

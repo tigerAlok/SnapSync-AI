@@ -1,25 +1,40 @@
 import 'package:flutter/material.dart';
-
-import '../../core/theme/app_theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SplashScreen extends StatefulWidget {
+import '../../core/theme/app_theme.dart';
+import '../../providers/auth/auth_provider.dart';
+
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() =>
+      _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
+    Future.delayed(
+      const Duration(seconds: 2),
+      _checkAuthentication,
+    );
+  }
 
+  void _checkAuthentication() {
+    if (!mounted) return;
+
+    final repository = ref.read(authRepositoryProvider);
+    final user = repository.currentUser;
+
+    if (user != null) {
+      context.go('/home');
+    } else {
       context.go('/login');
-    });
+    }
   }
 
   @override
@@ -40,7 +55,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
               Text(
                 'SnapSync AI',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium
+                    ?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),

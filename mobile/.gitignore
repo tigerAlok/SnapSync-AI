@@ -43,3 +43,23 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# Secrets and credentials
+.env.*
+!.env.example
+*.pem
+*.key
+*service-account*.json
+firebase-adminsdk*.json
+
+# Python caches
+.pytest_cache/
+.mypy_cache/
+
+# IDE
+.idea/
+
+# Local configuration
+local.properties
+
+# Temporary files
+*.tmp

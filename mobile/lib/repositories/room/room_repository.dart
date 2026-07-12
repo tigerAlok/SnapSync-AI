@@ -9,53 +9,60 @@ class RoomRepository {
 
   RoomRepository({
     FirebaseFirestore? firestore,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance;
+  }) : _firestore =
+            firestore ?? FirebaseFirestore.instance;
 
-  CollectionReference<Map<String, dynamic>> get _rooms {
+  CollectionReference<Map<String, dynamic>>
+      get _rooms {
     return _firestore.collection('rooms');
   }
 
-  // Generate a random 6-character room code
+  CollectionReference<Map<String, dynamic>>
+      get _roomCodes {
+    return _firestore.collection('roomCodes');
+  }
+
   String _generateRoomCode() {
-    const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const characters =
+        'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
     final random = Random.secure();
 
     return List.generate(
       6,
-      (_) => characters[random.nextInt(characters.length)],
+      (_) => characters[
+          random.nextInt(characters.length)],
     ).join();
   }
 
-  // Generate a code that doesn't already exist
   Future<String> _generateUniqueRoomCode() async {
     for (int attempt = 0; attempt < 10; attempt++) {
       final code = _generateRoomCode();
 
-      final result = await _rooms
-          .where('code', isEqualTo: code)
-          .limit(1)
-          .get();
+      final codeSnapshot =
+          await _roomCodes.doc(code).get();
 
-      if (result.docs.isEmpty) {
+      if (!codeSnapshot.exists) {
         return code;
       }
     }
 
     throw Exception(
-      'Could not generate a unique room code. Please try again.',
+      'Could not generate a unique room code. '
+      'Please try again.',
     );
   }
 
-  // Create a new room
   Future<RoomModel> createRoom({
     required String name,
     required String ownerId,
   }) async {
     final code = await _generateUniqueRoomCode();
-    final document = _rooms.doc();
+
+    final roomDocument = _rooms.doc();
 
     final room = RoomModel(
-      id: document.id,
+      id: roomDocument.id,
       name: name,
       code: code,
       ownerId: ownerId,
@@ -63,44 +70,73 @@ class RoomRepository {
       createdAt: DateTime.now(),
     );
 
-    await document.set({
-      'name': room.name,
-      'code': room.code,
-      'ownerId': room.ownerId,
-      'memberIds': room.memberIds,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    final batch = _firestore.batch();
+
+    batch.set(
+      roomDocument,
+      {
+        'name': room.name,
+        'code': room.code,
+        'ownerId': room.ownerId,
+        'memberIds': room.memberIds,
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+    );
+
+    batch.set(
+      _roomCodes.doc(code),
+      {
+        'roomId': roomDocument.id,
+      },
+    );
+
+    await batch.commit();
 
     return room;
   }
 
-  // Join a room using its code
   Future<RoomModel> joinRoom({
     required String code,
     required String userId,
   }) async {
-    final normalizedCode = code.trim().toUpperCase();
+    final normalizedCode =
+        code.trim().toUpperCase();
 
-    final result = await _rooms
-        .where('code', isEqualTo: normalizedCode)
-        .limit(1)
-        .get();
+    final codeSnapshot =
+        await _roomCodes.doc(normalizedCode).get();
 
-    if (result.docs.isEmpty) {
-      throw Exception('Room not found. Check the code and try again.');
+    final codeData = codeSnapshot.data();
+
+    if (!codeSnapshot.exists || codeData == null) {
+      throw Exception(
+        'Room not found. Check the code and try again.',
+      );
     }
 
-    final document = result.docs.first;
+    final roomId =
+        codeData['roomId'] as String?;
 
-    await document.reference.update({
+    if (roomId == null || roomId.isEmpty) {
+      throw Exception(
+        'Invalid room code.',
+      );
+    }
+
+    final roomDocument = _rooms.doc(roomId);
+
+    await roomDocument.update({
       'memberIds': FieldValue.arrayUnion([userId]),
     });
 
-    final updatedSnapshot = await document.reference.get();
+    final updatedSnapshot =
+        await roomDocument.get();
+
     final data = updatedSnapshot.data();
 
     if (data == null) {
-      throw Exception('Unable to load room.');
+      throw Exception(
+        'Unable to load room.',
+      );
     }
 
     return RoomModel.fromMap(
@@ -109,9 +145,12 @@ class RoomRepository {
     );
   }
 
-  // Get one room
-  Future<RoomModel?> getRoom(String roomId) async {
-    final snapshot = await _rooms.doc(roomId).get();
+  Future<RoomModel?> getRoom(
+    String roomId,
+  ) async {
+    final snapshot =
+        await _rooms.doc(roomId).get();
+
     final data = snapshot.data();
 
     if (!snapshot.exists || data == null) {
@@ -124,8 +163,9 @@ class RoomRepository {
     );
   }
 
-  // Watch all rooms belonging to a user
-  Stream<List<RoomModel>> watchUserRooms(String userId) {
+  Stream<List<RoomModel>> watchUserRooms(
+    String userId,
+  ) {
     return _rooms
         .where(
           'memberIds',
@@ -135,7 +175,8 @@ class RoomRepository {
         .map((snapshot) {
       final rooms = snapshot.docs
           .map(
-            (document) => RoomModel.fromMap(
+            (document) =>
+                RoomModel.fromMap(
               document.id,
               document.data(),
             ),
@@ -143,25 +184,31 @@ class RoomRepository {
           .toList();
 
       rooms.sort(
-        (a, b) => b.createdAt.compareTo(a.createdAt),
+        (a, b) =>
+            b.createdAt.compareTo(a.createdAt),
       );
 
       return rooms;
     });
   }
 
-  // Leave a room
   Future<void> leaveRoom({
     required String roomId,
     required String userId,
   }) async {
     await _rooms.doc(roomId).update({
-      'memberIds': FieldValue.arrayRemove([userId]),
+      'memberIds':
+          FieldValue.arrayRemove([userId]),
     });
   }
 
-    Stream<RoomModel?> watchRoom(String roomId) {
-    return _rooms.doc(roomId).snapshots().map((snapshot) {
+  Stream<RoomModel?> watchRoom(
+    String roomId,
+  ) {
+    return _rooms
+        .doc(roomId)
+        .snapshots()
+        .map((snapshot) {
       final data = snapshot.data();
 
       if (!snapshot.exists || data == null) {
@@ -174,20 +221,29 @@ class RoomRepository {
       );
     });
   }
-    Future<void> deleteRoom({
+
+  Future<void> deleteRoom({
     required String roomId,
     required String userId,
   }) async {
-    final roomDocument = _rooms.doc(roomId);
-    final roomSnapshot = await roomDocument.get();
+    final roomDocument =
+        _rooms.doc(roomId);
 
-    final roomData = roomSnapshot.data();
+    final roomSnapshot =
+        await roomDocument.get();
 
-    if (!roomSnapshot.exists || roomData == null) {
-      throw Exception('Room not found.');
+    final roomData =
+        roomSnapshot.data();
+
+    if (!roomSnapshot.exists ||
+        roomData == null) {
+      throw Exception(
+        'Room not found.',
+      );
     }
 
-    final ownerId = roomData['ownerId'] as String? ?? '';
+    final ownerId =
+        roomData['ownerId'] as String? ?? '';
 
     if (ownerId != userId) {
       throw Exception(
@@ -195,15 +251,27 @@ class RoomRepository {
       );
     }
 
-    // Delete photo metadata stored inside the room.
-    final photosSnapshot = await roomDocument
-        .collection('photos')
-        .get();
+    final roomCode =
+        roomData['code'] as String? ?? '';
+
+    final photosSnapshot =
+        await roomDocument
+            .collection('photos')
+            .get();
 
     final batch = _firestore.batch();
 
-    for (final photoDocument in photosSnapshot.docs) {
-      batch.delete(photoDocument.reference);
+    for (final photoDocument
+        in photosSnapshot.docs) {
+      batch.delete(
+        photoDocument.reference,
+      );
+    }
+
+    if (roomCode.isNotEmpty) {
+      batch.delete(
+        _roomCodes.doc(roomCode),
+      );
     }
 
     batch.delete(roomDocument);

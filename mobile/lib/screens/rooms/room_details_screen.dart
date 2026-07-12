@@ -34,6 +34,7 @@ class _RoomDetailsScreenState
 
   bool _isSelectionMode = false;
   bool _isDownloadingSelected = false;
+  bool _isDeletingSelected = false;
 
   RoomModel get room => widget.room;
 
@@ -83,7 +84,7 @@ class _RoomDetailsScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${images.length} photo(s) uploaded successfully.',
+            '🎉 ${images.length} photo(s) uploaded and indexed successfully.'
           ),
         ),
       );
@@ -361,6 +362,119 @@ class _RoomDetailsScreenState
       }
     }
   }
+  Future<void> _deleteSelectedPhotos(
+  List<PhotoModel> photos,
+) async {
+  if (_selectedPhotoIds.isEmpty ||
+      _isDeletingSelected) {
+    return;
+  }
+
+  final selectedPhotos = photos
+      .where(
+        (photo) =>
+            _selectedPhotoIds.contains(
+          photo.id,
+        ),
+      )
+      .toList();
+
+  if (selectedPhotos.isEmpty) {
+    return;
+  }
+
+  final shouldDelete = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text(
+          'Delete Photos?',
+        ),
+        content: Text(
+          'Delete ${selectedPhotos.length} selected '
+          'photo(s)? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(
+                dialogContext,
+                false,
+              );
+            },
+            child: const Text(
+              'Cancel',
+            ),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(
+                dialogContext,
+                true,
+              );
+            },
+            child: const Text(
+              'Delete',
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (shouldDelete != true ||
+      !mounted) {
+    return;
+  }
+
+  setState(() {
+    _isDeletingSelected = true;
+  });
+
+  final messenger =
+      ScaffoldMessenger.of(context);
+
+  try {
+    final success = await ref
+        .read(
+          photoDeleteControllerProvider.notifier,
+        )
+        .deletePhotos(
+          photos: selectedPhotos,
+        );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (success) {
+      _cancelSelection();
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            '${selectedPhotos.length} photo(s) '
+            'deleted successfully.',
+          ),
+        ),
+      );
+    } else {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to delete all selected photos.',
+          ),
+        ),
+      );
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isDeletingSelected = false;
+      });
+    }
+  }
+}
 
   // --------------------------------------------------
   // NORMAL APP BAR
@@ -426,41 +540,74 @@ class _RoomDetailsScreenState
   // SELECTION APP BAR
   // --------------------------------------------------
 
-  AppBar _buildSelectionAppBar(
-    List<PhotoModel> photos,
-  ) {
-    return AppBar(
-      leading: IconButton(
-        tooltip: 'Cancel selection',
-        icon: const Icon(Icons.close),
-        onPressed: _cancelSelection,
+AppBar _buildSelectionAppBar(
+  List<PhotoModel> photos,
+) {
+  final isBusy =
+      _isDownloadingSelected ||
+      _isDeletingSelected;
+
+  return AppBar(
+    leading: IconButton(
+      tooltip: 'Cancel selection',
+      icon: const Icon(
+        Icons.close,
       ),
-      title: Text(
-        '${_selectedPhotoIds.length} selected',
-      ),
-      actions: [
-        IconButton(
-          tooltip: 'Download selected photos',
-          onPressed: _isDownloadingSelected
-              ? null
-              : () {
-                  _downloadSelectedPhotos(photos);
-                },
-          icon: _isDownloadingSelected
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Icon(
-                  Icons.download_outlined,
+      onPressed:
+          isBusy ? null : _cancelSelection,
+    ),
+    title: Text(
+      '${_selectedPhotoIds.length} selected',
+    ),
+    actions: [
+      IconButton(
+        tooltip: 'Download selected photos',
+        onPressed: isBusy
+            ? null
+            : () {
+                _downloadSelectedPhotos(
+                  photos,
+                );
+              },
+        icon: _isDownloadingSelected
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child:
+                    CircularProgressIndicator(
+                  strokeWidth: 2,
                 ),
-        ),
-      ],
-    );
-  }
+              )
+            : const Icon(
+                Icons.download_outlined,
+              ),
+      ),
+
+      IconButton(
+        tooltip: 'Delete selected photos',
+        onPressed: isBusy
+            ? null
+            : () {
+                _deleteSelectedPhotos(
+                  photos,
+                );
+              },
+        icon: _isDeletingSelected
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child:
+                    CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+            : const Icon(
+                Icons.delete_outline,
+              ),
+      ),
+    ],
+  );
+}
 
   // --------------------------------------------------
   // BUILD
@@ -929,7 +1076,7 @@ class _RoomDetailsScreenState
               label: Text(
                 isUploading
                     ? 'Uploading...'
-                    : 'Add Photos',
+                    : 'Upload Photos',
               ),
             ),
     );
@@ -964,7 +1111,7 @@ class _EmptyPhotosView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'No photos shared yet',
+              'No memories yet 📸',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -972,8 +1119,7 @@ class _EmptyPhotosView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Tap Add Photos to share memories '
-              'with this room.',
+              'Upload your first photo and let SnapSync AI organize everything automatically.',
               textAlign: TextAlign.center,
             ),
           ],

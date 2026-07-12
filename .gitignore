@@ -1,27 +1,161 @@
-# Flutter
-mobile/build/
+# ==================================================
+# FLUTTER / DART
+# ==================================================
+
 mobile/.dart_tool/
 mobile/.packages
+mobile/.pub/
+mobile/build/
+
 mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
 
-# Python
+mobile/android/.gradle/
+mobile/android/local.properties
+
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/ephemeral/
+
+*.lock
+# Keep pubspec.lock for Flutter applications
+!mobile/pubspec.lock
+
+
+# ==================================================
+# PYTHON
+# ==================================================
+
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+*.egg-info/
+dist/
+build/
+
+
+# ==================================================
+# PYTHON VIRTUAL ENVIRONMENTS
+# ==================================================
+
 .venv/
 venv/
+venv_old/
 
-# Environment files
+backend/.venv/
+backend/venv/
+backend/venv_old/
+
+
+# ==================================================
+# ENVIRONMENT FILES / SECRETS
+# ==================================================
+
 .env
+.env.*
+!.env.example
 
-# VS Code
+backend/.env
+mobile/.env
+
+
+# ==================================================
+# LOCAL DATABASES
+# ==================================================
+
+*.db
+*.sqlite
+*.sqlite3
+
+backend/face_index.db
+
+
+# ==================================================
+# FIREBASE LOCAL / SECRET CONFIGURATION
+# ==================================================
+
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+
+# ==================================================
+# CLOUDINARY / LOCAL CONFIG
+# ==================================================
+
+cloudinary.env
+credentials.json
+secrets.json
+
+
+# ==================================================
+# VS CODE
+# ==================================================
+
 .vscode/
+
+
+# ==================================================
+# INTELLIJ / ANDROID STUDIO
+# ==================================================
+
+.idea/
+*.iml
+
+
+# ==================================================
+# OPERATING SYSTEM FILES
+# ==================================================
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
 # Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
 
-# Logs
+# Linux
+*~
+
+
+# ==================================================
+# LOGS
+# ==================================================
+
 *.log
+logs/
+
+
+# ==================================================
+# TEMPORARY FILES
+# ==================================================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+
+# ==================================================
+# MODEL / CACHE FILES
+# ==================================================
+
+*.onnx
+*.pth
+*.pt
+
+.insightface/
+models/

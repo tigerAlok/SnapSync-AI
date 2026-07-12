@@ -5,6 +5,7 @@ class PhotoModel {
   final String publicId;
   final String uploaderId;
   final String? uploaderName;
+  final String? aiCaption;
   final DateTime createdAt;
 
   const PhotoModel({
@@ -14,6 +15,7 @@ class PhotoModel {
     required this.publicId,
     required this.uploaderId,
     this.uploaderName,
+    this.aiCaption,
     required this.createdAt,
   });
 
@@ -23,11 +25,18 @@ class PhotoModel {
   ) {
     return PhotoModel(
       id: documentId,
-      roomId: map['roomId'] as String? ?? '',
-      imageUrl: map['imageUrl'] as String? ?? '',
-      publicId: map['publicId'] as String? ?? '',
-      uploaderId: map['uploaderId'] as String? ?? '',
-      uploaderName: map['uploaderName'] as String?,
+      roomId:
+          map['roomId'] as String? ?? '',
+      imageUrl:
+          map['imageUrl'] as String? ?? '',
+      publicId:
+          map['publicId'] as String? ?? '',
+      uploaderId:
+          map['uploaderId'] as String? ?? '',
+      uploaderName:
+          map['uploaderName'] as String?,
+      aiCaption:
+          map['aiCaption'] as String?,
       createdAt: map['createdAt'] != null
           ? map['createdAt'].toDate()
           : DateTime.now(),
@@ -41,6 +50,7 @@ class PhotoModel {
       'publicId': publicId,
       'uploaderId': uploaderId,
       'uploaderName': uploaderName,
+      'aiCaption': aiCaption,
       'createdAt': createdAt,
     };
   }

@@ -138,50 +138,97 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
         itemBuilder: (context, index) {
           final photo = widget.photos[index];
 
-          return Center(
-            child: InteractiveViewer(
-              minScale: 1.0,
-              maxScale: 4.0,
+          final caption =
+              photo.aiCaption?.trim();
 
-              child: Hero(
-                tag: photo.id,
+          return Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 4.0,
 
-                child: Image.network(
-                  photo.imageUrl,
-                  fit: BoxFit.contain,
+                    child: Hero(
+                      tag: photo.id,
 
-                  loadingBuilder: (
-                    context,
-                    child,
-                    loadingProgress,
-                  ) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
+                      child: Image.network(
+                        photo.imageUrl,
+                        fit: BoxFit.contain,
 
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
+                        loadingBuilder: (
+                          context,
+                          child,
+                          loadingProgress,
+                        ) {
+                          if (loadingProgress == null) {
+                            return child;
+                          }
+
+                          return const Center(
+                            child:
+                                CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+
+                        errorBuilder: (
+                          context,
+                          error,
+                          stackTrace,
+                        ) {
+                          return const Center(
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              color: Colors.white,
+                              size: 60,
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-
-                  errorBuilder: (
-                    context,
-                    error,
-                    stackTrace,
-                  ) {
-                    return const Center(
-                      child: Icon(
-                        Icons.broken_image_outlined,
-                        color: Colors.white,
-                        size: 60,
-                      ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
               ),
-            ),
+
+              if (caption != null &&
+                  caption.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(
+                    20,
+                    14,
+                    20,
+                    20,
+                  ),
+                  color: Colors.black,
+                  child: Row(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome,
+                        color: Colors.white70,
+                        size: 20,
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      Expanded(
+                        child: Text(
+                          caption,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           );
         },
       ),

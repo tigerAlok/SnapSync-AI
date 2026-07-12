@@ -85,10 +85,43 @@ class PhotoRepository {
     );
   }
 
+  Future<List<PhotoModel>> getRoomPhotos(
+    String roomId,
+  ) async {
+    final snapshot = await _photos(
+      roomId,
+    ).get();
+
+    return snapshot.docs.map(
+      (document) {
+        return PhotoModel.fromMap(
+          document.id,
+          document.data(),
+        );
+      },
+    ).toList();
+  }
+
   Future<void> deletePhotoMetadata({
     required String roomId,
     required String photoId,
   }) async {
     await _photos(roomId).doc(photoId).delete();
   }
+
+
+  Future<void> updateAiCaption({
+    required String roomId,
+    required String photoId,
+    required String caption,
+  }) async {
+    await _photos(
+      roomId,
+    ).doc(
+      photoId,
+    ).update({
+      'aiCaption': caption,
+    });
+  }
+
 }

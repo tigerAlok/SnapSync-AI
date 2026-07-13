@@ -378,7 +378,7 @@ class FaceIndexService:
         query_embedding: list[float],
         room_ids: list[str],
         limit: int = 50,
-        minimum_similarity: float = 0.20,
+        minimum_similarity: float = 0.30,
     ) -> list[dict]:
 
         if not room_ids:
@@ -429,6 +429,10 @@ class FaceIndexService:
                     query_vector,
                     image_vector,
                 )
+            )
+
+            print(
+                f"{photo_id} -> {similarity:.4f}"
             )
 
             if similarity < minimum_similarity:

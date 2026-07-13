@@ -496,7 +496,7 @@ async def search_photos(
                 query_embedding=query_embedding,
                 room_ids=allowed_room_ids,
                 limit=limit,
-                minimum_similarity=0.0,
+                minimum_similarity=0.22,
             )
         )
 

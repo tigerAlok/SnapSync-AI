@@ -12,6 +12,8 @@ import '../../providers/room/room_provider.dart';
 import '../../services/download/photo_download_service.dart';
 import 'photo_viewer_screen.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 class RoomDetailsScreen extends ConsumerStatefulWidget {
   final RoomModel room;
 
@@ -615,6 +617,13 @@ AppBar _buildSelectionAppBar(
 
   @override
   Widget build(BuildContext context) {
+
+
+    debugPrint(
+      'Current UID: ${FirebaseAuth.instance.currentUser?.uid}',
+    );
+
+
     final liveRoomState = ref.watch(
       roomDetailsProvider(room.id),
     );

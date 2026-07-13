@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 class ApiService {
   static const String baseUrl =
-      'http://10.0.2.2:8000';
+      'http://192.168.31.212:8000';
 
   // -------------------------------------------------
   // HEALTH CHECK

@@ -120,3 +120,215 @@ Instead of manually scrolling through hundreds of photos, users can:
 | Profile |
 |---------|
 | ![](screenshots/profile_page.png) |
+
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                +-----------------------+
+                |   Flutter Mobile App  |
+                +----------+------------+
+                           |
+                           |
+          Firebase Authentication
+                           |
+                           v
+                +-----------------------+
+                |   Cloud Firestore     |
+                | Rooms & Photo Metadata|
+                +----------+------------+
+                           |
+                           |
+                Upload / Search Requests
+                           |
+                           v
+                +-----------------------+
+                |   FastAPI Backend     |
+                +----------+------------+
+                           |
+        +------------------+------------------+
+        |                  |                  |
+        v                  v                  v
+   OpenCLIP          InsightFace        Image Analysis
+ Semantic Search      Face Search      Duplicate Detection
+                                         Categories
+                                         Captions
+                           |
+                           |
+                           v
+                   Cloudinary Storage
+```
+
+
+---
+
+# 📂 Project Structure
+
+```text
+SnapSync-AI
+│
+├── backend/
+│   ├── app/
+│   │   ├── services/
+│   │   ├── database/
+│   │   ├── main.py
+│   │   └── ...
+│   ├── requirements.txt
+│   └── ...
+│
+├── mobile/
+│   ├── lib/
+│   │   ├── models/
+│   │   ├── providers/
+│   │   ├── repositories/
+│   │   ├── screens/
+│   │   ├── services/
+│   │   └── main.dart
+│   └── ...
+│
+├── screenshots/
+├── docs/
+└── README.md
+```
+
+---
+
+# ⚙️ Installation & Setup
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/tigerAlok/SnapSync-AI.git
+cd SnapSync-AI
+```
+
+---
+
+## 2. Backend Setup
+
+```bash
+cd backend
+
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+
+Backend will start at:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## 3. Flutter Setup
+
+```bash
+cd mobile
+
+flutter pub get
+
+flutter run
+```
+
+---
+
+## 4. Configure Firebase
+
+- Create a Firebase project
+- Enable Firebase Authentication
+- Create a Firestore Database
+- Download `google-services.json`
+- Place it inside:
+
+```text
+mobile/android/app/
+```
+
+---
+
+## 5. Configure Cloudinary
+
+Build the Flutter app with:
+
+```bash
+flutter run \
+--dart-define=CLOUDINARY_CLOUD_NAME=<your-cloud-name> \
+--dart-define=CLOUDINARY_UPLOAD_PRESET=<your-upload-preset>
+```
+
+For release:
+
+```bash
+flutter build apk --release \
+--dart-define=CLOUDINARY_CLOUD_NAME=<your-cloud-name> \
+--dart-define=CLOUDINARY_UPLOAD_PRESET=<your-upload-preset>
+```
+
+---
+
+# 📡 Backend API Overview
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/v1/photos/process` | AI processing after photo upload |
+| `GET /api/v1/photos/search` | Semantic photo search |
+| `POST /api/v1/face/reference` | Face search using a reference selfie |
+| `GET /api/v1/photos/category` | Retrieve photos by AI-generated category |
+| `GET /api/v1/photos/similar` | Find visually similar photos |
+| `GET /api/v1/photos/duplicates` | Detect duplicate photos |
+| `GET /api/v1/photos/duplicate-groups` | Automatically group duplicate photos |
+| `DELETE /api/v1/photos` | Delete a photo and its AI indexes |
+
+---
+
+# 🚀 Future Improvements
+
+- 🌐 Cloud deployment for the AI backend
+- 📱 iOS application support
+- 🎥 Video indexing and semantic search
+- 👥 Shared albums with role-based permissions
+- 🧠 Multilingual semantic search
+- ☁️ Offline synchronization improvements
+- 📊 AI-powered memory highlights
+- 🔔 Smart photo recommendations
+
+---
+
+# 🎯 Key Learning Outcomes
+
+This project demonstrates practical experience with:
+
+- Flutter application architecture using Riverpod
+- REST API development using FastAPI
+- Firebase Authentication and Firestore
+- Cloudinary image storage
+- AI-powered semantic search with OpenCLIP
+- Face recognition using InsightFace
+- Image similarity and duplicate detection
+- SQLite-based AI indexing
+- Multi-device real-time synchronization
+- End-to-end mobile application development
+
+
+---
+
+# 👨‍💻 Author
+
+**Alok Raj (Tiger)**
+
+- GitHub: https://github.com/tigerAlok
+- LinkedIn: linkedin.com/in/alok-raj-tiger-041b28341
+
+If you found this project interesting, consider giving it a ⭐ on GitHub.
